@@ -147,7 +147,7 @@ if fondo_base64:
             color: #ffffff !important;
         }}
         
-     /* Bloquea el teclado en los cuadros numericos de los goles */
+     /* 1. Bloquea el teclado en los cuadros numericos de los goles */
       .stNumberInput>div>div>input {{
             background-color: #ffffff !important;
             color: #000000 !important;
@@ -155,19 +155,19 @@ if fondo_base64:
             pointer-events: none; 
       }}
       
-      /*  Bloquea el teclado también en el cuadro de selección de nombre (Selectbox) */
-      .stSelectbox div[role="combobox"] input {{
+      /* 2. Bloquea por completo el teclado en el selector de nombres (Selectbox) */
+      .stSelectbox>div>div, .stSelectbox div[role="combobox"], .stSelectbox input {{
             pointer-events: none !important;
       }}
       
-      /* Mantiene el fondo blanco y texto negro en inputs y selectbox */
+      /* 3. Mantiene el diseño visual limpio (fondo blanco y texto negro) */
       .stTextInput>div>div>input, .stSelectbox>div>div {{
             background-color: #ffffff !important;
             color: #000000 !important;
             font-weight: 500;
       }}
         
-      /* Permite que los botones de + y - si reaccionen al toque */
+      /* 4. Permite que los botones de + y - si reaccionen al toque */
       .stNumberInput button {{
             pointer-events: auto !important;
       }}
