@@ -147,18 +147,25 @@ if fondo_base64:
             color: #ffffff !important;
         }}
         
-      .stTextInput>div>div>input, .stNumberInput>div>div>input, .stSelectbox>div>div {{
+      /* Bloquea el teclado SOLO en los cuadros numericos de los goles */
+      .stNumberInput>div>div>input {{
             background-color: #ffffff !important;
             color: #000000 !important;
             font-weight: 500;
-            /* Bloquea que el dedo active el teclado en el cuadro numerico */
             pointer-events: none; 
-        }}
+      }}
+      
+      /* Mantiene el fondo blanco y texto negro en inputs y selectbox SIN bloquear clics */
+      .stTextInput>div>div>input, .stSelectbox>div>div {{
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            font-weight: 500;
+      }}
         
-        /* Permite que los botones de + y - si reaccionen al toque */
-        .stNumberInput button {{
+      /* Permite que los botones de + y - si reaccionen al toque */
+      .stNumberInput button {{
             pointer-events: auto !important;
-        }}
+      }}
         
         .stDataFrame div, .stDataFrame span, td, th {{
             color: #ffffff !important;
