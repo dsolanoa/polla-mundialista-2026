@@ -147,10 +147,17 @@ if fondo_base64:
             color: #ffffff !important;
         }}
         
-        .stTextInput>div>div>input, .stNumberInput>div>div>input, .stSelectbox>div>div {{
+      .stTextInput>div>div>input, .stNumberInput>div>div>input, .stSelectbox>div>div {{
             background-color: #ffffff !important;
             color: #000000 !important;
             font-weight: 500;
+            /* Bloquea que el dedo active el teclado en el cuadro numerico */
+            pointer-events: none; 
+        }}
+        
+        /* Permite que los botones de + y - si reaccionen al toque */
+        .stNumberInput button {{
+            pointer-events: auto !important;
         }}
         
         .stDataFrame div, .stDataFrame span, td, th {{
