@@ -147,7 +147,7 @@ if fondo_base64:
             color: #ffffff !important;
         }}
         
-     /* 1. Bloquea el teclado en los cuadros numericos de los goles */
+        /* 1. Bloquea el teclado en los cuadros numericos de los goles */
       .stNumberInput>div>div>input {{
             background-color: #ffffff !important;
             color: #000000 !important;
@@ -155,8 +155,8 @@ if fondo_base64:
             pointer-events: none; 
       }}
       
-      /* 2. Bloquea por completo el teclado en el selector de nombres (Selectbox) */
-      .stSelectbox>div>div, .stSelectbox div[role="combobox"], .stSelectbox input {{
+      /* 2. Bloquea el teclado ÚNICAMENTE en el selector de nombres, protegiendo la navegación */
+      .bloque-nombre div[role="combobox"], .bloque-nombre input {{
             pointer-events: none !important;
       }}
       
@@ -171,6 +171,7 @@ if fondo_base64:
       .stNumberInput button {{
             pointer-events: auto !important;
       }}
+     
         
         .stDataFrame div, .stDataFrame span, td, th {{
             color: #ffffff !important;
@@ -623,6 +624,7 @@ if menu == "🏆 Tabla de Posiciones Generales":
 
 elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
     st.header("🏃 Zona de Jugadores")
+    with st.container(key="bloque-nombre"):
     jugador_activo = st.selectbox("Selecciona tu nombre:", ["-- Selecciona --"] + JUGADORES_PERMITIDOS)
     
     if jugador_activo != "-- Selecciona --":
