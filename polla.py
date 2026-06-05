@@ -624,8 +624,9 @@ if menu == "🏆 Tabla de Posiciones Generales":
 
 elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
     st.header("🏃 Zona de Jugadores")
+    
     with st.container(key="bloque-nombre"):
-    jugador_activo = st.selectbox("Selecciona tu nombre:", ["-- Selecciona --"] + JUGADORES_PERMITIDOS)
+        jugador_activo = st.selectbox("Selecciona tu nombre:", ["-- Selecciona --"] + JUGADORES_PERMITIDOS)
     
     if jugador_activo != "-- Selecciona --":
         tabs_principales = st.tabs(["📝 Marcadores", "📊 Estadísticas", "👀 Chismosear"])
