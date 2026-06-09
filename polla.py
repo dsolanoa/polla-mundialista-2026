@@ -94,7 +94,7 @@ st.set_page_config(page_title="La Polla de los 8 - Mundial 2026", page_icon="⚽
 
 # --- CONEXIONES OFICIALES A TU GOOGLE SHEETS ---
 URL_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1jycuYiB2478uhqZw17ovONaAzMMla4l1c3vTrO3aYho/edit?usp=sharing"
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwi-NAtBLPoKVSEXqWQEmFMFdFUU1KhkXfVfKr5gpC30aftnDYlyO1zEssn6QUVr4fmVg/exec"
+URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwWMpKAVdf_vd7PbypSup-dkHvdGiR06ewi7zmYrFysYPfMk4ngUeidg7X725KwM2NKeA/exec"
 
 # --- TRUCO DE FONDO CON IMAGEN LOCAL ---
 def cargar_fondo_local(ruta_imagen):
