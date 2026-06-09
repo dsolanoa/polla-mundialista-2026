@@ -620,7 +620,7 @@ if menu == "🏆 Tabla de Posiciones Generales":
         tabla_puntos.append({"Jugador": jugador, "Puntos Totales": puntos_totales})
     
     df_puntos = pd.DataFrame(tabla_puntos).sort_values(by="Puntos Totales", ascending=False).reset_index(drop=True)
-    st.dataframe(df_puntos, use_container_width=True)
+    st.dataframe(df_puntos, width="content")
 
 elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
     st.header("🏃 Zona de Jugadores")
@@ -868,7 +868,7 @@ elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
 
             # --- 3. BOTÓN DE GUARDADO ---
             st.write("---")
-            if st.button("💾 Guardar Mis Pronósticos", use_container_width=True):
+            if st.button("💾 Guardar Mis Pronósticos", width="stretch"):
                 with st.spinner("Guardando tus apuestas en la nube... 🚀"):
                     if enviar_datos_a_sheets():
                         # 🔄 1. Descargamos los datos frescos rompiendo la caché de Google de inmediato
@@ -1033,7 +1033,7 @@ elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
             df_mostrar = df_filtrado.drop(columns=["Fase"])
             
             # 5. Renderizamos la tabla en Streamlit
-            st.dataframe(df_mostrar, use_container_width=True, hide_index=True)
+            st.dataframe(df_mostrar, width="content", hide_index=True)
 
 else:
     st.write("---")
