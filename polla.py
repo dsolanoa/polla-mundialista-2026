@@ -7,6 +7,12 @@ import json
 import datetime
 import time
 import pytz
+import re
+
+# --- INICIALIZACIÓN DEL SESSION STATE ---
+# Aseguramos que las variables críticas existan desde el segundo cero
+if "jugador_activo" not in st.session_state:
+    st.session_state.jugador_activo = "-- Selecciona --"
 
 EQUIPOS_POR_GRUPO = {
     "Grupo A": ["México", "Sudáfrica", "República de Corea", "Chequia"],
@@ -94,7 +100,7 @@ st.set_page_config(page_title="La Polla de los 8 - Mundial 2026", page_icon="⚽
 
 # --- CONEXIONES OFICIALES A TU GOOGLE SHEETS ---
 URL_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1jycuYiB2478uhqZw17ovONaAzMMla4l1c3vTrO3aYho/edit?usp=sharing"
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwWMpKAVdf_vd7PbypSup-dkHvdGiR06ewi7zmYrFysYPfMk4ngUeidg7X725KwM2NKeA/exec"
+URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwTXyQkw4KYT4PotQyfLQp9x6xrG5JrYBO3XONi0SolW7wp5f7az2tX0HxU__LOO4se/exec"
 
 # --- TRUCO DE FONDO CON IMAGEN LOCAL ---
 def cargar_fondo_local(ruta_imagen):
@@ -147,31 +153,11 @@ if fondo_base64:
             color: #ffffff !important;
         }}
         
-        /* 1. Bloquea el teclado en los cuadros numericos de los goles */
-      .stNumberInput>div>div>input {{
+        .stTextInput>div>div>input, .stNumberInput>div>div>input, .stSelectbox>div>div {{
             background-color: #ffffff !important;
             color: #000000 !important;
             font-weight: 500;
-            pointer-events: none; 
-      }}
-      
-      /* 2. Bloquea el teclado ÚNICAMENTE en el selector de nombres, protegiendo la navegación */
-      .bloque-nombre div[role="combobox"], .bloque-nombre input {{
-            pointer-events: none !important;
-      }}
-      
-      /* 3. Mantiene el diseño visual limpio (fondo blanco y texto negro) */
-      .stTextInput>div>div>input, .stSelectbox>div>div {{
-            background-color: #ffffff !important;
-            color: #000000 !important;
-            font-weight: 500;
-      }}
-        
-      /* 4. Permite que los botones de + y - si reaccionen al toque */
-      .stNumberInput button {{
-            pointer-events: auto !important;
-      }}
-     
+        }}
         
         .stDataFrame div, .stDataFrame span, td, th {{
             color: #ffffff !important;
@@ -456,19 +442,52 @@ if "fases_finales_reales" not in st.session_state:
 # =========================================================================
 def cargar_datos_desde_sheets():
     try:
-        # 🚀 CAMBIO CLAVE: Usamos la URL de tu Apps Script (la misma del método POST)
-        # pero haciéndole un método GET para traer los datos en tiempo real sin caché de Google.
-        # Asegúrate de cambiar 'URL_APPS_SCRIPT' por tu variable real.
         response = requests.get(URL_APPS_SCRIPT, allow_redirects=True)
         
         if response.status_code == 200:
-            datos_jugadores = response.json() # Apps Script nos devuelve una lista de diccionarios/filas
+            try:
+                datos_jugadores = response.json()
+            except ValueError:
+                st.warning("⚠️ Google Sheets está procesando los datos. Los cambios se reflejarán por completo en unos segundos.")
+                return
             
             if not datos_jugadores:
                 return
                 
+            # 🧼 SUB-FUNCIÓN INTERNA PARA DETECTAR Y REPARAR MARCADORES MUTADOS
+            def reparar_marcador(valor):
+                if valor is None:
+                    return None
+                val_clean = str(valor).strip().replace("'", "") # Quitamos comillas remanentes
+                
+                if not val_clean or val_clean in ["-", "None", ""]:
+                    return None
+                    
+                # Caso 1: Vino correcto como "X-Y"
+                if "-" in val_clean and len(val_clean.split("-")) == 2:
+                    partes = val_clean.split("-")
+                    if partes[0].isdigit() and partes[1].isdigit():
+                        return int(partes[0]), int(partes[1])
+                
+                # Caso 2: Google Sheets lo transformó en fecha estándar "YYYY-MM-DD..." (ej: 2026-02-01)
+                # Evaluamos si cumple con el patrón de año-mes-día
+                match_fecha = re.match(r"^(\d{4})[-/](\d{2})[-/](\d{2})", val_clean)
+                if match_fecha:
+                    # En fechas tipo 2026-02-01, el mes suele ser el marcador local y el día el visitante
+                    gl = int(match_fecha.group(2))
+                    gv = int(match_fecha.group(3))
+                    return gl, gv
+                    
+                # Caso 3: Google Sheets lo transformó en fecha corta "DD/MM" o "MM/DD" (ej: 2/1 o 02/01)
+                if "/" in val_clean:
+                    partes = val_clean.split("/")
+                    if len(partes) == 2 and partes[0].isdigit() and partes[1].isdigit():
+                        return int(partes[0]), int(partes[1])
+                        
+                # Si no se pudo descifrar por mutación radical, devolvemos un estado seguro por defecto
+                return None
+
             for row in datos_jugadores:
-                # Usamos .get() para evitar errores si la columna no existe o viene en minúsculas
                 jugador = str(row.get("Jugador", row.get("jugador", ""))).strip()
                 
                 # --- 🛠️ PROCESAR ADMINISTRADOR ---
@@ -476,45 +495,71 @@ def cargar_datos_desde_sheets():
                     for p in partidos:
                         try:
                             val_p = row.get(f"P_{p['id']}")
-                            if val_p and "-" in str(val_p):
-                                gl, gv = map(int, str(val_p).split("-"))
-                                st.session_state.resultados_reales[p["id"]] = {"goles_l": gl, "goles_v": gv, "jugado": True}
+                            marcador_reparado = reparar_marcador(val_p)
+                            
+                            if marcador_reparado is None:
+                                st.session_state.resultados_reales[p["id"]] = {
+                                    "goles_l": 0, "goles_v": 0, "jugado": False
+                                }
+                            else:
+                                gl, gv = marcador_reparado
+                                estado_actual = st.session_state.resultados_reales.get(p["id"], {})
+                                ya_jugado_en_pantalla = estado_actual.get("jugado", False)
+                                
+                                es_jugado = ya_jugado_en_pantalla if (gl == 0 and gv == 0) else True
+                                    
+                                st.session_state.resultados_reales[p["id"]] = {
+                                    "goles_l": gl, "goles_v": gv, "jugado": es_jugado
+                                }
                         except:
                             pass
-                    for fase in CONFIG_FASES.keys():
+                            
+                    todas_fases = list(CONFIG_FASES.keys()) + ["campeon"]
+                    for fase in todas_fases:
                         try:
-                            val_f = row.get(fase.capitalize())
+                            val_f = row.get(fase.capitalize(), row.get(fase, None))
                             if val_f:
-                                elementos = [e.strip() for e in str(val_f).split(",") if e.strip() != ""]
-                                while len(elementos) < CONFIG_FASES[fase]["cantidad"]: 
+                                elementos = [e.strip() for e in str(val_f).split("-") if e.strip() != ""]
+                                cant_max = 1 if fase == "campeon" else CONFIG_FASES[fase]["cantidad"]
+                                while len(elementos) < cant_max: 
                                     elementos.append("Por definir")
-                                st.session_state.fases_finales_reales[fase] = elementos[:CONFIG_FASES[fase]["cantidad"]]
+                                    
+                                if fase == "campeon":
+                                    st.session_state.fases_finales_reales["campeon"] = elementos[:1]
+                                else:
+                                    st.session_state.fases_finales_reales[fase] = elementos[:cant_max]
                         except:
                             pass
-                
+                            
                 # --- ⚽ PROCESAR JUGADORES ---
                 elif jugador in st.session_state.base_predicciones:
                     for p in partidos:
                         try:
                             val_p = row.get(f"P_{p['id']}")
-                            if val_p and "-" in str(val_p):
-                                gl, gv = map(int, str(val_p).split("-"))
+                            marcador_reparado = reparar_marcador(val_p)
+                            
+                            if marcador_reparado is not None:
+                                gl, gv = marcador_reparado
                                 st.session_state.base_predicciones[jugador]["partidos"][p["id"]] = {"goles_l": gl, "goles_v": gv}
                             else:
-                                # Si no hay datos guardados aún para este partido, dejamos 0-0
                                 st.session_state.base_predicciones[jugador]["partidos"][p["id"]] = {"goles_l": 0, "goles_v": 0}
                         except:
-                            pass
-                    for fase in CONFIG_FASES.keys():
+                            st.session_state.base_predicciones[jugador]["partidos"][p["id"]] = {"goles_l": 0, "goles_v": 0}
+                    
+                    todas_fases = list(CONFIG_FASES.keys()) + ["campeon"]
+                    for fase in todas_fases:
                         try:
-                            val_f = row.get(fase.capitalize())
+                            val_f = row.get(fase.capitalize(), row.get(fase, None))
                             if val_f:
-                                elementos = [e.strip() for e in str(val_f).split(",") if e.strip() != ""]
-                                while len(elementos) < CONFIG_FASES[fase]["cantidad"]: 
+                                elementos = [e.strip() for e in str(val_f).split("-") if e.strip() != ""]
+                                cant_max = 1 if fase == "campeon" else CONFIG_FASES[fase]["cantidad"]
+                                while len(elementos) < cant_max: 
                                     elementos.append("")
-                                st.session_state.base_predicciones[jugador]["fases"][fase] = elementos[:CONFIG_FASES[fase]["cantidad"]]
+                                    
+                                st.session_state.base_predicciones[jugador]["fases"][fase] = elementos[:cant_max]
                         except:
                             pass
+                
     except Exception as e:
         st.error(f"🚨 Error crítico al cargar datos desde la API: {e}")
 
@@ -525,12 +570,80 @@ if "datos_cargados" not in st.session_state:
     cargar_datos_desde_sheets()
     st.session_state.datos_cargados = True
 
-def enviar_datos_a_sheets():
-    # 1. Mapeo explícito para los encabezados del Sheet basándonos en tu CONFIG_FASES
-    # "semi" se convertirá en "Semi", "final" en "Final", manteniendo la simetría con image_8c5b27.png
-    todas_las_llaves = ["Jugador"] + [f"P_{p['id']}" for p in partidos] + [fase.capitalize() for fase in CONFIG_FASES.keys()]
-    
-    filas = []
+def enviar_datos_a_sheets(es_admin=False):
+    try:
+        jugador = "Admin" if es_admin else st.session_state.get("jugador_activo", "")
+        datos_jugador = {"Jugador": jugador}
+        
+        # 🔄 CAPTURA DE GOLES (Partidos)
+        for p in partidos:
+            id_p = p['id']
+            
+            try:
+                if es_admin:
+                    res_partido = st.session_state.get("resultados_reales", {}).get(id_p, {})
+                    
+                    if res_partido.get("jugado", False):
+                        goles_l = res_partido.get("goles_l", 0)
+                        goles_v = res_partido.get("goles_v", 0)
+                        # 🎯 TRUCO: Agregamos el apóstrofe "'" al principio para congelarlo como texto
+                        datos_jugador[f"P_{id_p}"] = f"'{goles_l}-{goles_v}"
+                    else:
+                        datos_jugador[f"P_{id_p}"] = "-"
+                else:
+                    key_local = f"u_l_{id_p}_{jugador}"
+                    key_vis = f"u_v_{id_p}_{jugador}"
+                    goles_l = st.session_state.get(key_local, 0)
+                    goles_v = st.session_state.get(key_vis, 0)
+                    # 🎯 TRUCO: También protegemos las predicciones de los usuarios normales
+                    datos_jugador[f"P_{id_p}"] = f"'{goles_l}-{goles_v}"
+            except Exception as e_partido:
+                print(f"Advertencia en partido {id_p}: {e_partido}")
+                datos_jugador[f"P_{id_p}"] = "-" if es_admin else "'0-0"
+
+        # 🔄 CAPTURA DE FASES FINALES
+        fases_mapeo = {
+            "Octavos": "octavos",
+            "Cuartos": "cuartos",
+            "Semi": "semi",
+            "Final": "final",
+            "Campeon": "campeon"
+        }
+        
+        for columna_excel, llave_diccionario in fases_mapeo.items():
+            datos_jugador[columna_excel] = "" 
+            try:
+                if es_admin:
+                    dicc_fases = st.session_state.get("fases_finales_reales", {})
+                    lista_equipos = dicc_fases.get(llave_diccionario, []) if isinstance(dicc_fases, dict) else []
+                else:
+                    lista_equipos = st.session_state.base_predicciones[jugador]["fases"].get(llave_diccionario, [])
+                
+                if lista_equipos:
+                    equipos_limpios = [str(e).strip() for e in lista_equipos if e and str(e).strip() not in ["-- Selecciona --", "Por definir", ""]]
+                    if equipos_limpios:
+                        if columna_excel == "Campeon":
+                            datos_jugador[columna_excel] = equipos_limpios[0]
+                        else:
+                            # 🎯 Aquí no suele haber problema, pero le ponemos protección por si acaso
+                            datos_jugador[columna_excel] = " - ".join(equipos_limpios)
+            except Exception as e_fase:
+                print(f"Advertencia en fase {columna_excel}: {e_fase}")
+                datos_jugador[columna_excel] = ""
+
+        filas = [datos_jugador]
+
+        print("====== 🚀 PAQUETE TEXTO CONGELADO EN RUTA A GOOGLE ======")
+        print(filas)
+        print("===============================================")
+
+        headers = {"Content-Type": "application/json"}
+        res = requests.post(URL_APPS_SCRIPT, json=filas, headers=headers)
+        return res.status_code == 200
+
+    except Exception as e_general:
+        print(f"❌ ERROR CRÍTICO INTERNO EN ENVIAR_DATOS: {e_general}")
+        return False
     
     # =========================================================================
     # PROCESAR JUGADORES
@@ -620,14 +733,11 @@ if menu == "🏆 Tabla de Posiciones Generales":
         tabla_puntos.append({"Jugador": jugador, "Puntos Totales": puntos_totales})
     
     df_puntos = pd.DataFrame(tabla_puntos).sort_values(by="Puntos Totales", ascending=False).reset_index(drop=True)
-    st.dataframe(df_puntos, width="content")
+    st.dataframe(df_puntos, use_container_width=True)
 
 elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
     st.header("🏃 Zona de Jugadores")
-    
-    with st.container(key="bloque-nombre"):
-        jugador_activo = st.selectbox("Selecciona tu nombre:", ["-- Selecciona --"] + JUGADORES_PERMITIDOS)
-    
+    jugador_activo = st.selectbox("Selecciona tu nombre:", ["-- Selecciona --"] + JUGADORES_PERMITIDOS, key="jugador_activo")
     if jugador_activo != "-- Selecciona --":
         tabs_principales = st.tabs(["📝 Marcadores", "📊 Estadísticas", "👀 Chismosear"])
         # 2. Usamos los índices [0], [1] y [2] en lugar de redeclarar
@@ -870,6 +980,10 @@ elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
             st.write("---")
             if st.button("💾 Guardar Mis Pronósticos", width="stretch"):
                 with st.spinner("Guardando tus apuestas en la nube... 🚀"):
+                    
+                    # 🎯 CHISMOSO 1: Ver en la web qué está intentando mandar antes de enviarlo
+                    st.write("DEBUG - Intentando enviar datos al Apps Script...")
+                    
                     if enviar_datos_a_sheets():
                         # 🔄 1. Descargamos los datos frescos rompiendo la caché de Google de inmediato
                         cargar_datos_desde_sheets()
@@ -884,7 +998,8 @@ elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
                         # 🔄 4. Forzamos el refresco visual para consolidar los cambios en la pantalla
                         st.rerun()
                     else:
-                        st.error("Error de conexión al guardar tus pronósticos. Inténtalo de nuevo.")
+                        # 🎯 CHISMOSO 2: Si falla, que nos muestre una alerta roja explicativa
+                        st.error("Error de conexión al guardar tus pronósticos. Revisa la consola negra (CMD) para ver el código de error de Google.")
         with tab2:
             st.subheader("📊 Resumen de mis Apuestas")
             
@@ -1033,7 +1148,7 @@ elif menu == "🏃 Entrar a mi Perfil (Jugadores)":
             df_mostrar = df_filtrado.drop(columns=["Fase"])
             
             # 5. Renderizamos la tabla en Streamlit
-            st.dataframe(df_mostrar, width="content", hide_index=True)
+            st.dataframe(df_mostrar, use_container_width=True, hide_index=True)
 
 else:
     st.write("---")
@@ -1245,12 +1360,22 @@ else:
                 st.session_state.fases_finales_reales["campeon"][0] = nuevo_real_camp
 
         # --- 3. BOTÓN DE ENVÍO FINAL ---
-        st.write("---")
-        if st.button("💾 Finalizar y Publicar Resultados Oficiales", use_container_width=True):
-            with st.spinner("Sincronizando los marcadores y clasificados con Google Sheets... 🚀"):
-                if enviar_datos_a_sheets():
-                    # 🔄 1. Descargamos los datos frescos de Sheets rompiendo la caché inmediatamente
-                    cargar_datos_desde_sheets()
+                        # --- 3. BOTÓN DE ENVÍO FINAL ---
+                st.write("---")
+                if st.button("💾 Finalizar y Publicar Resultados Oficiales", use_container_width=True):
+                    with st.spinner("Sincronizando los marcadores y clasificados con Google Sheets... 🚀"):
+                        if enviar_datos_a_sheets(es_admin=True):
+                            
+                            # ⏱️ LE DAMOS 1 SEGUNDO A GOOGLE PARA QUE TERMINE DE ESCRIBIR EN SU BASE DE DATOS
+                            time.sleep(1)
+                            
+                            # 🔄 Ahora sí, descargamos los datos frescos sin que se rompa el JSON
+                            cargar_datos_desde_sheets()
+                            
+                            st.success("🏆 ¡Resultados oficiales publicados con éxito!")
+                            st.rerun()
+                        else:
+                            st.error("Error de conexión al guardar los datos del Administrador.")
                     
                     # 🎉 2. Mostramos el mensaje con la vibra competitiva y el dinero del pozo
                     st.success("¡Perfecto! Todo el sistema se ha actualizado con los marcadores y equipos reales. ¡Que empiece a moverse esa plata del pozo! 🏆💰")
