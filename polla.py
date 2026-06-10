@@ -593,10 +593,14 @@ def enviar_datos_a_sheets(es_admin=False):
                 else:
                     key_local = f"u_l_{id_p}_{jugador}"
                     key_vis = f"u_v_{id_p}_{jugador}"
-                    goles_l = st.session_state.get(key_local, 0)
-                    goles_v = st.session_state.get(key_vis, 0)
-                    # 🎯 TRUCO: También protegemos las predicciones de los usuarios normales
-                    datos_jugador[f"P_{id_p}"] = f"'{goles_l}-{goles_v}"
+                    
+                    # 💡 SOLUCIÓN: Solo enviamos el marcador si existe en el session_state.
+                    # Si el usuario NO ha tocado el input, la llave no existe y NO se envía.
+                    # Si no se envía, tu Apps Script NO sobrescribirá el valor anterior.
+                    if key_local in st.session_state and key_vis in st.session_state:
+                        goles_l = st.session_state[key_local]
+                        goles_v = st.session_state[key_vis]
+                        datos_jugador[f"P_{id_p}"] = f"'{goles_l}-{goles_v}"
             except Exception as e_partido:
                 print(f"Advertencia en partido {id_p}: {e_partido}")
                 datos_jugador[f"P_{id_p}"] = "-" if es_admin else "'0-0"
