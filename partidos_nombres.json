@@ -29,7 +29,7 @@
     "28": {"local": "México", "visitante": "República de Corea", "fecha": "2026-06-18 20:00:00", "grupo": "GRUPO A"},
     "29": {"local": "EE. UU.", "visitante": "Australia", "fecha": "2026-06-19 14:00:00", "grupo": "GRUPO D"},
     "30": {"local": "Escocia", "visitante": "Marruecos", "fecha": "2026-06-19 17:00:00", "grupo": "GRUPO C"},
-    "31": {"local": "Brasil", "visitante": "Haití", "fecha": "2026-06-19 19:030:00", "grupo": "GRUPO C"},
+    "31": {"local": "Brasil", "visitante": "Haití", "fecha": "2026-06-19 19:30:00", "grupo": "GRUPO C"},
     "32": {"local": "Turquía", "visitante": "Paraguay", "fecha": "2026-06-19 22:00:00", "grupo": "GRUPO D"},
     "33": {"local": "Países Bajos", "visitante": "Suecia", "fecha": "2026-06-20 12:00:00", "grupo": "GRUPO F"},
     "34": {"local": "Alemania", "visitante": "Costa de Marfil", "fecha": "2026-06-20 15:00:00", "grupo": "GRUPO E"},
@@ -67,11 +67,8 @@
     "66": {"local": "Nueva Zelanda", "visitante": "Bélgica", "fecha": "2026-06-26 22:00:00", "grupo": "GRUPO G"},
     "67": {"local": "Panamá", "visitante": "Inglaterra", "fecha": "2026-06-27 16:00:00", "grupo": "GRUPO L"},
     "68": {"local": "Croacia", "visitante": "Ghana", "fecha": "2026-06-27 16:00:00", "grupo": "GRUPO L"},
-    "69": {"local": "Colombia", "visitante": "Portugal", "fecha": "2026-06-27 18:030:00", "grupo": "GRUPO K"},
-    "70": {"local": "RD Congo", "visitante": "Uzbekistán", "fecha": "2026-06-27 18:030:00", "grupo": "GRUPO K"},
+    "69": {"local": "Colombia", "visitante": "Portugal", "fecha": "2026-06-27 18:30:00", "grupo": "GRUPO K"},
+    "70": {"local": "RD Congo", "visitante": "Uzbekistán", "fecha": "2026-06-27 18:30:00", "grupo": "GRUPO K"},
     "71": {"local": "Argelia", "visitante": "Austria", "fecha": "2026-06-27 21:00:00", "grupo": "GRUPO J"},
     "72": {"local": "Jordania", "visitante": "Argentina", "fecha": "2026-06-27 21:00:00", "grupo": "GRUPO J"}
 }
-
-
-    
