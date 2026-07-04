@@ -292,14 +292,14 @@ for g in grupos:
 
 # 2. Octavos de Final
 INFO_OCTAVOS = {
-    73: {"local": "Clasificado 1", "visitante": "Clasificado 3", "fecha": "2026-07-04 12:00:00"},
-    74: {"local": "Clasificado 3", "visitante": "Clasificado 4", "fecha": "2026-07-04 16:00:00"},
-    75: {"local": "Clasificado 5", "visitante": "Clasificado 6", "fecha": "2026-07-05 15:00:00"},
-    76: {"local": "Clasificado 7", "visitante": "Clasificado 8", "fecha": "2026-07-05 19:00:00"},
-    77: {"local": "Clasificado 9", "visitante": "Clasificado 10", "fecha": "2026-07-06 14:00:00"},
-    78: {"local": "Clasificado 11", "visitante": "Clasificado 12", "fecha": "2026-07-06 19:00:00"},
-    79: {"local": "Clasificado 13", "visitante": "Clasificado 14", "fecha": "2026-07-07 11:00:00"},
-    80: {"local": "Clasificado 15", "visitante": "Clasificado 16", "fecha": "2026-07-07 15:00:00"},
+    73: {"local": "Canadá", "visitante": "Marruecos", "fecha": "2026-07-04 12:00:00"},
+    74: {"local": "Paraguay", "visitante": "Francia", "fecha": "2026-07-04 16:00:00"},
+    75: {"local": "Brasil", "visitante": "Noruega", "fecha": "2026-07-05 15:00:00"},
+    76: {"local": "México", "visitante": "Inglaterra", "fecha": "2026-07-05 19:00:00"},
+    77: {"local": "Portugal", "visitante": "España", "fecha": "2026-07-06 14:00:00"},
+    78: {"local": "EE. UU.", "visitante": "Bélgica", "fecha": "2026-07-06 19:00:00"},
+    79: {"local": "Argentina", "visitante": "Egipto", "fecha": "2026-07-07 11:00:00"},
+    80: {"local": "Suiza", "visitante": "Clasificado 16", "fecha": "2026-07-07 15:00:00"},
 }
 
 # --- 2. Bucle de Octavos de Final ---
