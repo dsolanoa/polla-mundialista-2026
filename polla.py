@@ -299,7 +299,7 @@ INFO_OCTAVOS = {
     77: {"local": "Portugal", "visitante": "España", "fecha": "2026-07-06 14:00:00"},
     78: {"local": "EE. UU.", "visitante": "Bélgica", "fecha": "2026-07-06 19:00:00"},
     79: {"local": "Argentina", "visitante": "Egipto", "fecha": "2026-07-07 11:00:00"},
-    80: {"local": "Suiza", "visitante": "Clasificado 16", "fecha": "2026-07-07 15:00:00"},
+    80: {"local": "Suiza", "visitante": "Colombia", "fecha": "2026-07-07 15:00:00"},
 }
 
 # --- 2. Bucle de Octavos de Final ---
