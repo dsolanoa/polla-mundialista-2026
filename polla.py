@@ -329,10 +329,10 @@ for i in range(1, 9):
 
 # 3. Cuartos de Final
 INFO_CUARTOS = {
-    81: {"local": "Ganador Octavos 1", "visitante": "Ganador Octavos 2", "fecha": "2026-07-09 15:00:00"},
-    82: {"local": "Ganador Octavos 3", "visitante": "Ganador Octavos 4", "fecha": "2026-07-10 14:00:00"},
-    83: {"local": "Ganador Octavos 5", "visitante": "Ganador Octavos 6", "fecha": "2026-07-11 16:00:00"},
-    84: {"local": "Ganador Octavos 7", "visitante": "Ganador Octavos 8", "fecha": "2026-07-11 20:00:00"},
+    81: {"local": "Francia", "visitante": "Marruecos", "fecha": "2026-07-09 15:00:00"},
+    82: {"local": "España", "visitante": "Bélgica", "fecha": "2026-07-10 14:00:00"},
+    83: {"local": "Noruega", "visitante": "Inglaterra", "fecha": "2026-07-11 16:00:00"},
+    84: {"local": "Argentina", "visitante": "Suiza, "fecha": "2026-07-11 20:00:00"},
 }
 for i in range(1, 5):
     config_partido = INFO_CUARTOS[id_partido]
