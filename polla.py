@@ -332,7 +332,7 @@ INFO_CUARTOS = {
     81: {"local": "Francia", "visitante": "Marruecos", "fecha": "2026-07-09 15:00:00"},
     82: {"local": "España", "visitante": "Bélgica", "fecha": "2026-07-10 14:00:00"},
     83: {"local": "Noruega", "visitante": "Inglaterra", "fecha": "2026-07-11 16:00:00"},
-    84: {"local": "Argentina", "visitante": "Suiza, "fecha": "2026-07-11 20:00:00"},
+    84: {"local": "Argentina", "visitante": "Suiza", "fecha": "2026-07-11 20:00:00"},
 }
 for i in range(1, 5):
     config_partido = INFO_CUARTOS[id_partido]
