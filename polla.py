@@ -357,8 +357,8 @@ for i in range(1, 5):
 
 # 4. Semifinales
 INFO_SEMIFINALES = {
-    85: {"local": "Ganador Cuartos 1", "visitante": "Ganador Cuartos 2", "fecha": "2026-07-14 14:00:00"},
-    86: {"local": "Ganador Cuartos 3", "visitante": "Ganador Cuartos 4", "fecha": "2026-07-15 14:00:00"},
+    85: {"local": "Francia", "visitante": "España", "fecha": "2026-07-14 14:00:00"},
+    86: {"local": "Inglaterra", "visitante": "Argentina, "fecha": "2026-07-15 14:00:00"},
 }
 for i in range(1, 3):
     config_partido = INFO_SEMIFINALES[id_partido]
