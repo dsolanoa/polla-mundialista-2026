@@ -383,7 +383,7 @@ for i in range(1, 3):
 
 # Gran Final
 INFO_FINAL = {
-    87: {"local": "Ganador Semifinal 1", "visitante": "Ganador Semifinal 2", "fecha": "2026-07-19 14:00:00"}
+    87: {"local": "España", "visitante": "Argentina", "fecha": "2026-07-19 14:00:00"}
 }
 config_final = INFO_FINAL[87]
 l_f, v_f, f_f, gru_f = get_nombres_y_fecha(
